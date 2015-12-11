@@ -61,6 +61,8 @@ class BulkPostUpdaterS
       //Перезапуск итерации с новой порцией данных
       $offset = $offset + $numberposts;
       $url = admin_url('admin-ajax.php?action=export_product_mss&offset=' . $offset);
+      set_transient('test', $url, 777);
+
       $url_result = wp_remote_get($url);
     } else {
       set_transient('bpus_end', "Работа выполнена", 777);
@@ -168,7 +170,7 @@ class BulkPostUpdaterS
 
             $(document).on( 'heartbeat-tick', function(e, data) {
 
-              console.log('Сообщение HB для импорта продуктов готово: ' + data['mss_product_import_start']);
+              //console.log('Сообщение HB для импорта продуктов готово: ' + data['test']);
 
               //Если есть данное о старте, то выводим сообщение и работаем, иначе прирываем работу
               if ( data['bpus_start_time'] ){

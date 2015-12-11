@@ -32,10 +32,11 @@ class BulkPostUpdaterS
     delete_transient( 'bpus_end' );//удаляем отметку о результате, если работа идет
 
     $offset = 0; //ставим позицию старта забора данных по умолчанию
-    $count = 100; //ставим число одновременно запрашиваемых данных для забора
+    $numberposts = 100; //ставим число одновременно запрашиваемых данных для забора
     if(isset($_REQUEST['offset'])) $offset = $_REQUEST['offset']; //если в запросе передали параметр старта позиций, то присваиваем его в $start
+    set_transient('test', $offset, 777);
 
-    $posts = get_posts('post_status=publish&post_type=any&numberposts=' . $count . '&offset=' . $offset);
+    $posts = get_posts('post_status=publish&post_type=any&numberposts=' . $numberposts . '&offset=' . $offset);
 
 
     $i = 0;
@@ -60,8 +61,7 @@ class BulkPostUpdaterS
     if($i) {
       //Перезапуск итерации с новой порцией данных
       $offset = $offset + $numberposts;
-      $url = admin_url('admin-ajax.php?action=export_product_mss&offset=' . $offset);
-      set_transient('test', $url, 777);
+      $url = admin_url('admin-ajax.php?action=bpus_start&offset=' . $offset);
 
       $url_result = wp_remote_get($url);
     } else {
@@ -91,11 +91,13 @@ class BulkPostUpdaterS
     <div id="bpus-wrapper" class="wrap">
         <h1>Инструмент автоматического обновления постов</h1>
       <div class="instruction">
-        <p>Эта обработка обновляет все посты в системе очередями по 100 штук и выводит данные через Hearbeat API на этой странице</p>
+        <p>Эта обработка обновляет все посты в системе очередями по 100 штук.</p>
+        <p>Статус работы обновляется каждые 15 секунд и выводит данные через Hearbeat API на этой странице</p>
+
       </div>
       <button id="bpus-product-import" class="button button-small">Запустить обновление всех постов</button>
       <br>
-      <div class="status-wrapper hide-if-js">
+      <div class="status-wrapper">
         <strong>Статус работы: </strong>
         <ul>
           <li>Результат первой итерации: <span class="first-result">отсутствует</span></li>
